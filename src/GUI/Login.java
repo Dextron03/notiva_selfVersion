@@ -6,6 +6,7 @@
 package GUI;
 
 import App.conexion;
+import Modules.Email;
 import Modules.User;
 import java.awt.Color;
 import java.awt.Component;
@@ -16,6 +17,10 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -101,6 +106,48 @@ public class Login extends JFrame {
         chckbxNewCheckBox.setBounds(47, 308, 117, 21);
         panel_1.add(chckbxNewCheckBox);
         JLabel lblNewLabel_1 = new JLabel("Forgot password?");
+        
+        lblNewLabel_1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String input = JOptionPane.showInputDialog(
+                        null,
+                        "Escriba el correo electrónico asociado a su cuenta:",
+                        "Enviar",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
+                if (input != null && !input.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Se ha enviado un código de verificación a " + input);
+
+                    // Usamos EmailApiClient (o adapta aquí tu clase Email)
+                    Email client = new Email("http://localhost:8000");
+
+                    Map<String, String> context = new HashMap<>();
+                    context.put("username", "Braily03");
+                    context.put("verification_code", "ABC123456");
+
+                    try {
+                        client.sendTemplateEmail(
+                                "",  // sender
+                                input,                   // receptor (correo del usuario)
+                                "",   // password de email del sender
+                                "Código de verificación",// subject
+                                "templates/emails",                // template_dir
+                                "verificate_code.html",  // template_name
+                                context                  // contexto con datos dinámicos
+                        );
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Error al enviar el correo: " + ex.getMessage());
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se ingresó nada.");
+                }
+            }
+        });
+        
         lblNewLabel_1.setBounds(233, 312, 113, 13);
         panel_1.add(lblNewLabel_1);
         JButton btnIngresar = new JButton("Ingresar");
